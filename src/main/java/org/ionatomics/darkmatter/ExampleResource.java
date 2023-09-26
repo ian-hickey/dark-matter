@@ -10,18 +10,30 @@ import java.net.URI;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.*;
 import jakarta.ws.rs.*;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import jakarta.enterprise.context.*;
-import io.quarkus.qute.*;
 import static cfscript.library.StdLib.*;
 import io.quarkus.logging.Log;
+import io.quarkus.mailer.Mailer;
+import io.quarkus.qute.*;
 import java.lang.*;
 import java.util.*;
-import io.quarkus.mailer.Mailer;
 @Path("")
 public class ExampleResource  {
 
+    /**
+     * You can inject the Mailer object to send mail.
+     */
     @Inject
-    Mailer mailer;
+Mailer mailer;
+
+    /**
+     * Config properties are stored in your application.properties file in /resources
+     * You can put any values you need to use in the app in there.
+     * Here, the default value is used if you need it.
+     */
+    @ConfigProperty(name="greeting.anon",defaultValue="anonymous")
+String anonGreeting;
 
     public ExampleResource() { }
 
@@ -34,14 +46,15 @@ public class ExampleResource  {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/greetname")
+    @Path("/greetbyname")
     public Response greetByName(@QueryParam("name") String name) {
+        Log.info("Greet By Name called with name=" + name);
         if (isNotNull(name)) {
             var greeting = "Greetings "+ name +" from Dark Matter!";
-            var myStruct = new HashMap<String, Object>() {{ put("greeting", greeting);put("id", 1);}};
+            var myStruct = new HashMap<String, Object>() {{ put("greeting", greeting);put("id", 1);put("name", "Ian");put("info", "1 test st. Worcester, Ma.");}};
             return Response.ok(myStruct).build();
         }else{
-            return Response.ok("Greetings ANONYMOUS Dark Matter user!").build();
+            return Response.ok("Greetings "+anonGreeting+" from Dark Matter!").build();
         }
     }
 }
