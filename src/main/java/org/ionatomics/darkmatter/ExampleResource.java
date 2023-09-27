@@ -46,9 +46,9 @@ String anonGreeting;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/greetbyname")
+    @Path("/greetme")
     public Response greetByName(@QueryParam("name") String name) {
-        Log.info("Greet By Name called with name=" + name);
+        Log.info("Greet Me called with: " + name);
         if (isNotNull(name)) {
             var greeting = "Greetings "+ name +" from Dark Matter!";
             var myStruct = new HashMap<String, Object>() {{ put("greeting", greeting);put("id", 1);put("name", "Ian");put("info", "1 test st. Worcester, Ma.");}};

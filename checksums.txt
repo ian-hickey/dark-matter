@@ -8,3 +8,9 @@
 /Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc 98d6e79d
 /Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc eb4f08e3
 /Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc 706a88b0
+/Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc ea6158c7
+/Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc 32d1efe5
+/Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc 73e270b5
+/Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc 4767a286
+/Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc 6d51973
+/Users/ianhickey/darkmatter-starter/src/main/cfscript/org.ionatomics.darkmatter/ExampleResource.cfc 2bdb54f

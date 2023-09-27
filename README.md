@@ -1,4 +1,4 @@
-# starter
+# dark matter starter
 
 This project uses Dark Matter (A Cfscript influenced scripting language) + Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -10,11 +10,19 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 You can run your application in dev mode that enables live coding using:
 Update permissions on the script first: 
-```chmod +x dm.sh```
 
-```shell script
+Start Quarkus:
+```mvn run quarkus:dev```
+
+Start Dark Matter:
+
+```shell script chmod +x dm.sh```
+
+```
 ./dm.sh
 ```
+
+This instructs Dark Matter to watch for file changes. 
 
 > **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
 
