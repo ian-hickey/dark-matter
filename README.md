@@ -16,7 +16,7 @@ Start Quarkus:
 
 Start Dark Matter:
 
-```shell script chmod +x dm.sh```
+```chmod +x dm.sh```
 
 ```
 ./dm.sh
