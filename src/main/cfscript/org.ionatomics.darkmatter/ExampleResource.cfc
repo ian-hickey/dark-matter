@@ -31,7 +31,7 @@ component name="ExampleResource" hint="This is a REST controller" {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/greetme")
+    @Path("/greetmebyname")
     public Response function greetByName(@QueryParam("name") String name) {
         Log.info("Greet Me called with: " + name);
         if (isNotNull(name)) {

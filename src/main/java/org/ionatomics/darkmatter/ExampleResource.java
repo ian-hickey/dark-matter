@@ -46,7 +46,7 @@ String anonGreeting;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/greetme")
+    @Path("/greetmebyname")
     public Response greetByName(@QueryParam("name") String name) {
         Log.info("Greet Me called with: " + name);
         if (isNotNull(name)) {
