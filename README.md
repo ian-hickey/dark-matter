@@ -30,7 +30,7 @@ This instructs Dark Matter to watch for file changes.
 
 The application can be packaged using:
 
-```shell script
+```
 ./mvnw package
 ```
 
