@@ -51,8 +51,10 @@ String anonGreeting;
         Log.info("Greet Me called with: " + name);
         if (isNotNull(name)) {
             var greeting = "Greetings "+ name +" from Dark Matter!";
-            var myStruct = new HashMap<String, Object>() {{ put("greeting", greeting);put("id", 1);put("name", "Ian");put("info", "1 test st. Worcester, Ma.");}};
-            return Response.ok(myStruct).build();
+            var myStruct1 = new HashMap<String, Object>() {{ put("greeting", greeting);put("id", 1);put("name", "Ian");put("info", "1 Test st. Worcester, Ma.");}};
+            var myStruct2 = new HashMap<String, Object>() {{ put("greeting", greeting);put("id", 2);put("name", "Admin");put("info", "1 Test st. Worcester, Ma.");}};
+            var myArray  = new ArrayList<Object>() {{add(myStruct1);add(myStruct2);}};
+            return Response.ok(myArray).build();
         }else{
             return Response.ok("Greetings "+anonGreeting+" from Dark Matter!").build();
         }
