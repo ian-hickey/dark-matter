@@ -3,6 +3,7 @@ package cfscript.library;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.*;
@@ -297,5 +298,56 @@ public class StdLib {
 
     public static void doThrow(String msg) throws Exception {
         throw new Exception(msg);
+    }
+
+    public static boolean isNumeric(Object obj) {
+        return obj instanceof Double || obj instanceof Integer;
+    }
+
+    public static boolean isNumericDate(String str) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+            LocalDate.parse(str, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    public static boolean isSimpleValue(Object obj) {
+        return obj instanceof Boolean || obj instanceof String || obj instanceof Double || obj instanceof Integer;
+    }
+
+    public static boolean isStruct(Object obj) {
+        return obj instanceof HashMap;
+    }
+
+    public static boolean isArray(Object obj) {
+        return obj instanceof ArrayList;
+    }
+
+    public static boolean isBoolean(Object obj) {
+        return obj instanceof Boolean;
+    }
+
+    public static boolean isDate(String str) {
+        try {
+            LocalDate.parse(str);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    public static boolean isDateObject(Object obj) {
+        return obj instanceof LocalDate;
+    }
+
+    public static boolean isObject(Object obj) {
+        return (obj instanceof HashMap || obj instanceof ArrayList) && !(isSimpleValue(obj));
+    }
+
+    public static boolean structIsEmpty(HashMap<?, ?> hashMap) {
+        return hashMap.isEmpty();
     }
 }

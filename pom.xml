@@ -86,8 +86,8 @@
                                 <!-- Your script to run the translation tool -->
                                 <exec executable="java">
                                     <arg value="-jar"/>
-                                    <arg path="Cfscript-1.0-SNAPSHOT.jar"/>
-                                    <arg value="${groupId}"/>
+                                    <arg path="darkmatter-parser-1.0-ALPHA.jar"/>
+                                    <arg value="${project.groupId}"/>
                                     <!-- Add more arguments as needed -->
                                 </exec>
                             </target>
