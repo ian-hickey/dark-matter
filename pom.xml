@@ -16,6 +16,7 @@
         <quarkus.platform.version>3.4.1</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.1.2</surefire-plugin.version>
+        <java.home.path>${env.JAVA_HOME}</java.home.path>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -84,7 +85,7 @@
                         <configuration>
                             <target>
                                 <!-- Your script to run the translation tool -->
-                                <exec executable="java">
+                                <exec executable="${java.home.path}/bin/java">
                                     <arg value="-jar"/>
                                     <arg path="darkmatter-parser-1.0-ALPHA.jar"/>
                                     <arg value="${project.groupId}"/>
