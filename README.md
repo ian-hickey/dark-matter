@@ -80,3 +80,7 @@ If you want to learn more about building native executables, please consult http
 Easily start your Reactive RESTful Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+### VSCode IDE support.
+We recommend using the VSCode extension by Sketchpunk. It does a great job coloring without issues with DMScript.
+
