@@ -1,2 +1,0 @@
-/Users/ianhickey/darkmatter-starter/src/main/cfscript/org/ionatomics/darkmatter/ExampleResource.cfc beec0b57
-/Users/ianhickey/darkmatter-starter/src/main/cfscript/org/ionatomics/darkmatter/model/Todo.cfc 7c5985d
