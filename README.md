@@ -25,10 +25,8 @@ For example:
 
 `$ java -version`
 
-`openjdk version "17.0.8" 2023-07-18
-OpenJDK Runtime Environment GraalVM CE 22.3.3 (build 17.0.8+7-jvmci-22.3-b22)
-OpenJDK 64-Bit Server VM GraalVM CE 22.3.3 (build 17.0.8+7-jvmci-22.3-b22, mixed mode, sharing)
-`
+openjdk version "17.0.8" 2023-07-18
+
 
 **JAVA_HOME** should also be set and resolve to the above. On Windows, this involves setting your global / user environment
 variables and possibly restarting. You **PATH** should also contain a reference to JAVA_HOME/bin folder. On linux, mac, you
@@ -51,15 +49,25 @@ git installed. You should be able to type `git` in your terminal and see output.
 You can run your application in dev mode that enables live coding using:
 Update permissions on the script first: 
 
+The easiest way to get Dark Matter + Quarkus started
+is to use the included scripts:
+
+Windows: `.\start-dev.bat`
+
+Mac/Linux/WSL: `./start-dev.sh`
+
+--------------------------------------------------
+
+Or, You can also start each manually if needed:
 Start **Quarkus**:
 
 Windows Powershell/Command Prompt: ```.\mvnw.cmd run quarkus:dev```
 Mac/Linux/Unix/WSL: ```./mvnw run quarkus:dev```  
 
 Start **Dark Matter**:
-
 ```java -jar darkmatter-watcher-1.0-ALPHA.jar src/main/cfscript process-resources```
 This instructs Dark Matter to watch for file changes. 
+---------------------------------------------------
 
 You app code lives in the /src/main/cfscript directory (+ your package name org.acme etc).
 As you make changes in dev mode, your app will live reload.
