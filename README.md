@@ -132,3 +132,193 @@ Easily start your Reactive RESTful Web Services
 ### VSCode IDE support.
 We recommend using the VSCode extension by Sketchpunk. It does a great job coloring without issues with DMScript.
 
+_____________________________________________________
+# DMScript Annotations Tutorial
+
+Quarkus is a Kubernetes-native Java framework tailored for GraalVM and HotSpot, 
+crafted from the best-of-breed Java libraries and standards. 
+Dark Matter is a Cfscript dialect that allows using Java annotations natively.
+Below is a simple explanation of common annotations used in DMScript.
+
+## Table of Contents
+
+- [@Inject](#inject)
+- [@Singleton, @ApplicationScoped, @RequestScoped](#singleton)
+- [@Path](#path)
+- [@Entity](#entity)
+- [@GET, @POST, @PUT, @DELETE](#http-verbs)
+- [@Produces, @Consumes](#produces-and-consumes)
+- [@ConfigProperty](#configproperty)
+- [@Transactional](#transactional)
+
+---
+
+### <a name="inject"></a>@Inject
+
+The `@Inject` annotation is used to inject one bean into another.
+
+**Example:**
+
+```
+@Singleton
+component name="SomeService" {
+    function sayHello() {
+        return "Hello, Quarkus!";
+    }
+}
+
+@RequestScoped
+component name="HelloController" {
+    
+    @Inject
+    property type="SomeService" name="someService";
+    
+    function getGreeting() {
+        return someService.sayHello();
+    }
+}
+```
+
+### <a name="@Singleton"></a>@Singleton @ApplicationScoped @RequestScoped
+
+The `@Singleton` (or `@ApplicationScoped`) annotations are used to specify that the 
+component should only be instantiated once on application start (technically on injection).
+
+The `@RequestScoped` annotation is used to specify that the component should be instantiated on each request.
+
+* `Note that you could create an Application component that stores application level values. Or, a request level compoent to store
+request level values. You can inject these components into other components where needed. `
+
+
+---
+
+### <a name="path"></a>@Path
+
+The `@Path` annotation is used to define the URL at which a component or function is available.
+
+**Example:**
+
+```
+@Path("/hello")
+component name="HelloController" {
+    @GET
+    function sayHello() {
+        return "Hello, World!";
+    }
+}
+```
+
+---
+
+### <a name="entity"></a>@Entity
+
+The `@Entity` annotation marks a component as an entity.
+
+**Example:**
+
+```
+@Entity
+component name="User" extends="PanachEntity"{
+    /* id field handled automatically. */
+    property name="name";
+    property name="address";
+    property name="zip";
+}
+```
+
+---
+
+### <a name="http-verbs"></a>@GET, @POST, @PUT, @DELETE
+
+These annotations specify the HTTP verb associated with a function.
+
+**Example:**
+
+```
+@Path("/users")
+component name="UserController" {
+    @GET
+    function getAllUsers() {
+        // return all users
+    }
+    
+    @POST
+    function createUser(User user) {
+        // create a new user
+    }
+}
+```
+
+---
+
+### <a name="produces-and-consumes"></a>@Produces, @Consumes
+
+These annotations define the MIME type that a method can produce or consume.
+
+**Example:**
+
+```
+@Path("/books")
+component name="BookController" {
+    
+    @GET 
+    @Produces(MediaType.APPLICATION_JSON) /* This is the default and can be omited */
+    function getAllBooks() {
+        // return all books
+    }
+    
+    @POST 
+    @Consumes(MediaType.APPLICATION_JSON)
+    function createBook(Book book) {
+        // create a new book
+    }
+}
+```
+
+---
+
+### <a name="configproperty"></a>@ConfigProperty
+
+The `@ConfigProperty` annotation is used to inject configuration properties.
+
+**Example:**
+
+For a configuration property (located in your /resources/application.properties file):
+
+```
+greeting.message=Hello from Quarkus!
+```
+
+You can inject it using:
+
+```
+component name="GreetingService" {
+    @ConfigProperty(name="greeting.message") 
+    property name="message";
+}
+```
+
+---
+
+### <a name="transactional"></a>@Transactional
+
+The `@Transactional` annotation indicates that a function should run within a transaction.
+
+**Example:**
+
+```
+component name="UserService" {
+    @Inject 
+    property type="EntityManager" name="em";
+    
+    @Transactional
+    function addUser(User user) {
+        em.persist(user);
+    }
+}
+```
+
+---
+
+
+
