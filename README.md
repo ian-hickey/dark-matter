@@ -56,6 +56,9 @@ Windows: `.\start-dev.bat`
 
 Mac/Linux/WSL: `./start-dev.sh`
 
+> **_NOTE:_**  When Quarkus starts, if Docker is not running, or,
+you don't have permission to use docker, it will error. Correct and try again.
+
 --------------------------------------------------
 
 Or, You can also start each manually if needed:
