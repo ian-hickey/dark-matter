@@ -1,5 +1,10 @@
 package cfscript.library;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -178,13 +183,11 @@ public class StdLib {
     }
 
     public static LocalDateTime createDateTime() {
-        LocalDateTime now = LocalDateTime.now();
-        return now;
+        return LocalDateTime.now();
     }
 
     public static LocalDate createDate() {
-        LocalDate now = LocalDate.now();
-        return now;
+        return LocalDate.now();
     }
 
     /**
@@ -227,29 +230,18 @@ public class StdLib {
 
     // DateAdd function
     public static Temporal dateAdd(String unit, int number, Temporal date) throws IllegalArgumentException {
-        switch (unit.toLowerCase()) {
-            case "yyyy":
-                return date.plus(number, ChronoUnit.YEARS);
-            case "q":
-                return date.plus(number * 3, ChronoUnit.MONTHS);
-            case "m":
-                return date.plus(number, ChronoUnit.MONTHS);
-            case "y":
-            case "d":
-                return date.plus(number, ChronoUnit.DAYS);
-            case "w":
-                return date.plus(number * 7, ChronoUnit.DAYS);
-            case "ww":
-                return date.plus(number, ChronoUnit.WEEKS);
-            case "h":
-                return date.plus(number, ChronoUnit.HOURS);
-            case "n":
-                return date.plus(number, ChronoUnit.MINUTES);
-            case "s":
-                return date.plus(number, ChronoUnit.SECONDS);
-            default:
-                throw new IllegalArgumentException("Unsupported unit: " + unit);
-        }
+        return switch (unit.toLowerCase()) {
+            case "yyyy" -> date.plus(number, ChronoUnit.YEARS);
+            case "q" -> date.plus(number * 3L, ChronoUnit.MONTHS);
+            case "m" -> date.plus(number, ChronoUnit.MONTHS);
+            case "y", "d" -> date.plus(number, ChronoUnit.DAYS);
+            case "w" -> date.plus(number * 7L, ChronoUnit.DAYS);
+            case "ww" -> date.plus(number, ChronoUnit.WEEKS);
+            case "h" -> date.plus(number, ChronoUnit.HOURS);
+            case "n" -> date.plus(number, ChronoUnit.MINUTES);
+            case "s" -> date.plus(number, ChronoUnit.SECONDS);
+            default -> throw new IllegalArgumentException("Unsupported unit: " + unit);
+        };
     }
 
     /**
@@ -350,4 +342,100 @@ public class StdLib {
     public static boolean structIsEmpty(HashMap<?, ?> hashMap) {
         return hashMap.isEmpty();
     }
+
+    // 1. ExpandPath
+    public static String expandPath(String basePath, String relativePath) {
+        Path path = Paths.get(basePath, relativePath);
+        return path.toAbsolutePath().toString();
+    }
+
+    // 2. FileAppend
+    public static void fileAppend(String filePath, String content) throws IOException {
+        Files.writeString(Paths.get(filePath), content, StandardOpenOption.APPEND);
+    }
+
+    // 3. FileClose
+    public static void fileClose(Closeable closeable) throws IOException {
+        if (closeable != null) {
+            closeable.close();
+        }
+    }
+
+    // 4. FileCopy
+    public static void fileCopy(String source, String destination) throws IOException {
+        Files.copy(Paths.get(source), Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    // 5. FileDelete
+    public static void fileDelete(String filePath) throws IOException {
+        Files.deleteIfExists(Paths.get(filePath));
+    }
+
+    // 6. FileExists
+    public static boolean fileExists(String filePath) {
+        return Files.exists(Paths.get(filePath));
+    }
+
+
+    // 8. FileInfo
+    public static BasicFileAttributes fileInfo(String filePath) throws IOException {
+        return Files.readAttributes(Paths.get(filePath), BasicFileAttributes.class);
+    }
+
+    // 9. FileIsEOF
+    public static boolean fileIsEOF(BufferedReader reader) throws IOException {
+        return !reader.ready();
+    }
+
+    // 10. FileMove
+    public static void fileMove(String source, String destination) throws IOException {
+        Files.move(Paths.get(source), Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    // 11. FileOpen
+    public static BufferedReader fileOpen(String filePath, String mode) throws FileNotFoundException {
+        if (mode.equals("read")) {
+            return new BufferedReader(new FileReader(filePath));
+        }
+        throw new IllegalArgumentException("Unsupported mode: " + mode);
+    }
+
+    // 12. FileRead
+    public static String fileRead(String filePath) throws IOException {
+        return Files.readString(Paths.get(filePath));
+    }
+
+    // 13. FileReadBinary
+    public static byte[] fileReadBinary(String filePath) throws IOException {
+        return Files.readAllBytes(Paths.get(filePath));
+    }
+
+    // 14. FileReadLine
+    public static String fileReadLine(BufferedReader reader) throws IOException {
+        return reader.readLine();
+    }
+
+    // 15. FileTouch
+    public static void fileTouch(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        if (!fileExists(filePath)) {
+            Files.createFile(path);
+        }
+        Files.setLastModifiedTime(path, FileTime.fromMillis(System.currentTimeMillis()));
+    }
+
+    // 16. FileWrite
+    public static void fileWrite(String filePath, String content) throws IOException {
+        Files.writeString(Paths.get(filePath), content);
+    }
+
+    // 17. FileWriteLine
+    public static void fileWriteLine(String filePath, String line) throws IOException {
+        fileAppend(filePath, line + System.lineSeparator());
+    }
+
+    public static long getTickCount() {
+        return System.nanoTime();
+    }
+
 }
