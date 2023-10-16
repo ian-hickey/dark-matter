@@ -1,6 +1,12 @@
 package cfscript.library;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.quarkus.logging.Log;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.owasp.encoder.Encode;
 
 import java.io.*;
@@ -14,6 +20,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.*;
+import java.lang.reflect.*;
 
 /**
  * This static library is imported where ever these built-in functions are needed.
@@ -541,4 +548,109 @@ public class StdLib {
         return input.replace("'", "&apos;").replace("\"", "&quot;");
     }
 
+    public static String writeDump(Object object) {
+        return dump(object);
+    }
+
+    public static String dump(Object object) {
+        var mapper = new ObjectMapper();
+        var result = "";
+        try {
+            var val = dumpObject(object, 0);
+            result = val.toString();
+            Object parsedJson = mapper.readValue(result, Object.class);
+            String prettyPrintedJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(parsedJson);
+
+            // Now you can output the pretty-printed JSON however you want
+            Log.info(prettyPrintedJson);
+
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    private static JSONObject dumpObject(Object object, int callCount) throws IllegalAccessException {
+        var mapper = new ObjectMapper();
+        // Base case checks
+        if (object == null) {
+            return null;
+        }
+
+        callCount++;
+        if (callCount > 3) {
+            // To avoid infinite loops, consider throwing an exception or returning a special token
+            JSONObject tooDeep = new JSONObject();
+            tooDeep.put("error", "Recursion too deep, aborting");
+            return tooDeep;
+        }
+
+        Class<?> objectClass = object.getClass();
+        JSONObject jsonObject = new JSONObject();
+
+        // Check for primitive types, wrapper classes, and Strings
+        if (objectClass.isPrimitive() || object instanceof Number || object instanceof Character || object instanceof Boolean || object instanceof String) {
+            jsonObject.put("type", objectClass.getSimpleName());
+            jsonObject.put("value", object.toString());
+        }
+        else if (object instanceof List) {
+            // Handling List
+            JSONArray jsonList = new JSONArray();
+            for (Object item : (List<?>) object) {
+                jsonList.put(dumpObject(item, callCount));  // Recursive call for each item in the list
+            }
+            jsonObject.put("type", "List");
+            jsonObject.put("values", jsonList);
+        }
+        else if (object instanceof Map) {
+            // Handling Map
+            JSONObject jsonMap = new JSONObject();
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) object).entrySet()) {
+                jsonMap.put(String.valueOf(entry.getKey()), dumpObject(entry.getValue(), callCount));  // Recursive call for each value in the map
+            }
+            jsonObject.put("type", "Map");
+            jsonObject.put("entries", jsonMap);
+        }
+        else {
+            // Any other type of object
+            jsonObject.put("class", objectClass.getName());
+
+            // Dump fields
+            JSONObject fieldsObject = new JSONObject();
+            for (Field field : objectClass.getDeclaredFields()) {
+                boolean isHibernateField = field.getName().startsWith("$$_hibernate_");
+                if (!isHibernateField) {
+                    field.setAccessible(true);
+                    Object value = field.get(object);
+                    fieldsObject.put(field.getName(), dumpObject(value, callCount));  // Recursive call for each field
+                }
+
+            }
+            jsonObject.put("fields", fieldsObject);
+
+            // Dump methods
+            ArrayNode methodsArray = mapper.createArrayNode();
+            Set<String> uniqueMethodNames = new HashSet<>(); // To store unique method names
+
+            for (Method method : objectClass.getDeclaredMethods()) {
+                if (!method.isSynthetic() && !method.isBridge()) { // Ignore synthetic and bridge methods
+                    // You could also add more conditions to exclude specific methods, e.g., those starting with "$$_hibernate_" for Hibernate proxy methods.
+                    boolean isHibernateMethod = method.getName().startsWith("$$_hibernate_");
+
+                    if (!method.getName().contains("$") && !isHibernateMethod && uniqueMethodNames.add(method.getName())) { // If the method name is added successfully, it wasn't already in the set.
+                        methodsArray.add(method.getName());
+                    }
+                }
+            }
+
+            jsonObject.put("methods", methodsArray);
+        }
+
+        return jsonObject;
+    }
 }
