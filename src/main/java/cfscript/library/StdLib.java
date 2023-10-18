@@ -332,11 +332,15 @@ public class StdLib {
     }
 
     public static void doThrow(String msg) {
-        throw new RuntimeException();
+        throw new RuntimeException(msg);
     }
 
     public static void abort() {
-        throw new RuntimeException();
+        throw new AbortException();
+    }
+
+    public static void abort(String msg) {
+        throw new AbortException(msg);
     }
 
     public static boolean isNumeric(Object obj) {
