@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import io.quarkus.logging.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -556,7 +557,15 @@ public class StdLib {
         return input.replace("'", "&apos;").replace("\"", "&quot;");
     }
 
-    public static String writeDump(Object object) {
+    public static void writeDump(Object object) {
+        try {
+            throw new DumpException(JsonToHtml.jsonToTable(dumpObject(object, 0)));
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String logDump(Object object) {
         return dump(object);
     }
 
@@ -594,17 +603,32 @@ public class StdLib {
         if (callCount > 3) {
             // To avoid infinite loops, consider throwing an exception or returning a special token
             JSONObject tooDeep = new JSONObject();
-            tooDeep.put("error", "Recursion too deep, aborting");
+            tooDeep.put("error", "Recursion max depth reached");
             return tooDeep;
         }
 
         Class<?> objectClass = object.getClass();
         JSONObject jsonObject = new JSONObject();
 
+        // Check if the class is part of a system package or a well-known library
+        if (objectClass.getPackageName().startsWith("java.util") ||
+            objectClass.getPackageName().startsWith("javax.") ||
+            objectClass.getPackageName().startsWith("jakarta.") ||
+            objectClass.getPackageName().startsWith("com.sun.") ||
+            objectClass.getPackageName().startsWith("org.hibernate.") ||  // for Hibernate, if applicable
+            objectClass.getPackageName().startsWith("org.jboss") ||    
+            objectClass.getPackageName().startsWith("org.springframework.") ||  // for Spring, if applicable
+            // add other internal or library packages as needed
+            objectClass.getPackageName().startsWith("com.fasterxml.jackson.")) {  // for Jackson, if applicable
+            // Skip internal/system classes
+            return null;
+        }
+
         // Check for primitive types, wrapper classes, and Strings
         if (objectClass.isPrimitive() || object instanceof Number || object instanceof Character || object instanceof Boolean || object instanceof String) {
             jsonObject.put("type", objectClass.getSimpleName());
             jsonObject.put("value", object.toString());
+
         }
         else if (object instanceof List) {
             // Handling List
@@ -612,8 +636,9 @@ public class StdLib {
             for (Object item : (List<?>) object) {
                 jsonList.put(dumpObject(item, callCount));  // Recursive call for each item in the list
             }
-            jsonObject.put("type", "List");
-            jsonObject.put("values", jsonList);
+            jsonObject.put("type", "Array");
+            jsonObject.put("value", jsonList);
+
         }
         else if (object instanceof Map) {
             // Handling Map
@@ -621,13 +646,15 @@ public class StdLib {
             for (Map.Entry<?, ?> entry : ((Map<?, ?>) object).entrySet()) {
                 jsonMap.put(String.valueOf(entry.getKey()), dumpObject(entry.getValue(), callCount));  // Recursive call for each value in the map
             }
-            jsonObject.put("type", "Map");
-            jsonObject.put("entries", jsonMap);
+            jsonObject.put("type", "Struct");
+            jsonObject.put("value", jsonMap);
+
         }
         else {
+            
             // Any other type of object
-            jsonObject.put("class", objectClass.getName());
-
+            JSONObject jsonClassFieldsMap = new JSONObject();
+            JSONObject jsonClassMethodsMap = new JSONObject();
             // Dump fields
             JSONObject fieldsObject = new JSONObject();
             for (Field field : objectClass.getDeclaredFields()) {
@@ -637,26 +664,32 @@ public class StdLib {
                     Object value = field.get(object);
                     fieldsObject.put(field.getName(), dumpObject(value, callCount));  // Recursive call for each field
                 }
-
             }
-            jsonObject.put("fields", fieldsObject);
+            jsonClassFieldsMap.put("type", "Array");
+            jsonClassFieldsMap.put("value", fieldsObject);
 
             // Dump methods
-            ArrayNode methodsArray = mapper.createArrayNode();
+            JSONArray methodsArray = new JSONArray(); // Use JSONArray instead of ArrayNode
             Set<String> uniqueMethodNames = new HashSet<>(); // To store unique method names
 
             for (Method method : objectClass.getDeclaredMethods()) {
                 if (!method.isSynthetic() && !method.isBridge()) { // Ignore synthetic and bridge methods
-                    // You could also add more conditions to exclude specific methods, e.g., those starting with "$$_hibernate_" for Hibernate proxy methods.
                     boolean isHibernateMethod = method.getName().startsWith("$$_hibernate_");
 
                     if (!method.getName().contains("$") && !isHibernateMethod && uniqueMethodNames.add(method.getName())) { // If the method name is added successfully, it wasn't already in the set.
-                        methodsArray.add(method.getName());
+                        methodsArray.put(method.getName()); // Use put method for JSONArray
                     }
                 }
             }
-
-            jsonObject.put("methods", methodsArray);
+            jsonClassMethodsMap.put("type", "Array");
+            jsonClassMethodsMap.put("value", methodsArray); // Add the methods array to your jsonObject
+            
+            // Set class, and methods and fields
+            jsonObject.put("component", objectClass.getName());
+            jsonObject.put("methods", jsonClassMethodsMap);
+            jsonObject.put("fields", jsonClassFieldsMap);
+           
+            
         }
 
         return jsonObject;
