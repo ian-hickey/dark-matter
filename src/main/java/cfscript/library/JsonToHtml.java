@@ -135,32 +135,48 @@ public class JsonToHtml {
                 }
             </style>    
             <script>
-                // Function to toggle the visibility of the nested content
-                function toggleVisibility(element) {
-                if (element.classList.contains('hidden')) {
-                    element.classList.remove('hidden');
-                } else {
-                    element.classList.add('hidden');
-                }
-                }
-
-                // Add the click event listeners
-                document.addEventListener('DOMContentLoaded', function() {
-                // Get all the 'td' elements in the table
-                var cells = document.querySelectorAll('td');
-
-                // Add a click event listener to each cell
-                cells.forEach(function(cell) {
-                    cell.addEventListener('click', function() {
-                    // Find the nested content within the clicked cell
-                    var nestedContent = cell.querySelector('.nested-content');
-                    if (nestedContent) {
-                        // If nested content is found, toggle its visibility
-                        toggleVisibility(nestedContent);
+                document.addEventListener('DOMContentLoaded', function () {
+                    // This object will store the state of rows' visibility for each table
+                    var tableStates = {};
+                
+                    // Add event listener for the whole document
+                    document.addEventListener('click', function (e) {
+                    if (e.target && e.target.nodeName === 'TD') {
+                        var currentCell = e.target;
+                        var currentRow = currentCell.parentNode;
+                        var innerTable = currentCell.closest('table'); // Find the closest parent table
+                
+                        if (innerTable) {
+                        // Unique identifier for the table, here we use the index among its siblings
+                        var tableId = Array.from(innerTable.parentNode.children).indexOf(innerTable);
+                
+                        var allRows = innerTable.rows; // HTMLCollection of all the <tr> elements in the table
+                
+                        // If the table's state has not been stored yet or all rows are visible (state is false)
+                        if (!tableStates.hasOwnProperty(tableId) || !tableStates[tableId]) {
+                            // Set the state as true meaning some rows are hidden
+                            tableStates[tableId] = true;
+                
+                            // Loop through all rows and hide those that are not the parent of the clicked cell
+                            for (var i = 0; i < allRows.length; i++) {
+                            if (allRows[i] !== currentRow) {
+                                allRows[i].style.display = 'none';
+                            }
+                            }
+                        } else {
+                            // If the table's state is true (some rows are hidden), we show them all
+                            tableStates[tableId] = false; // Set the state back to false
+                
+                            // Loop through all rows and make them visible
+                            for (var i = 0; i < allRows.length; i++) {
+                            allRows[i].style.display = '';
+                            }
+                        }
+                        }
                     }
                     });
                 });
-                });
+              
             </script>
         """);
         return table.toString();
