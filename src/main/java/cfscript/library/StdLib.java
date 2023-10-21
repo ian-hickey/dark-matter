@@ -593,7 +593,6 @@ public class StdLib {
     }
 
     private static JSONObject dumpObject(Object object, int callCount) throws IllegalAccessException {
-        var mapper = new ObjectMapper();
         // Base case checks
         if (object == null) {
             return null;
@@ -611,15 +610,15 @@ public class StdLib {
         JSONObject jsonObject = new JSONObject();
 
         // Check if the class is part of a system package or a well-known library
-        if (objectClass.getPackageName().startsWith("java.util") ||
-            objectClass.getPackageName().startsWith("javax.") ||
-            objectClass.getPackageName().startsWith("jakarta.") ||
-            objectClass.getPackageName().startsWith("com.sun.") ||
-            objectClass.getPackageName().startsWith("org.hibernate.") ||  // for Hibernate, if applicable
-            objectClass.getPackageName().startsWith("org.jboss") ||    
-            objectClass.getPackageName().startsWith("org.springframework.") ||  // for Spring, if applicable
-            // add other internal or library packages as needed
-            objectClass.getPackageName().startsWith("com.fasterxml.jackson.")) {  // for Jackson, if applicable
+        if (objectClass.getPackageName().startsWith("io.quarkus") ||
+                objectClass.getPackageName().startsWith("org.eclipse") ||
+                objectClass.getPackageName().startsWith("javax.") ||
+                objectClass.getPackageName().startsWith("jakarta.") ||
+                objectClass.getPackageName().startsWith("com.sun.") ||
+                objectClass.getPackageName().startsWith("org.hibernate.") ||  // for Hibernate, if applicable
+                objectClass.getPackageName().startsWith("org.jboss") ||
+                // add other internal or library packages as needed
+                objectClass.getPackageName().startsWith("com.fasterxml.jackson.")) {  // for Jackson, if applicable
             // Skip internal/system classes
             return null;
         }
@@ -651,7 +650,7 @@ public class StdLib {
 
         }
         else {
-            
+
             // Any other type of object
             JSONObject jsonClassFieldsMap = new JSONObject();
             JSONObject jsonClassMethodsMap = new JSONObject();
@@ -660,9 +659,13 @@ public class StdLib {
             for (Field field : objectClass.getDeclaredFields()) {
                 boolean isHibernateField = field.getName().startsWith("$$_hibernate_");
                 if (!isHibernateField) {
-                    field.setAccessible(true);
-                    Object value = field.get(object);
-                    fieldsObject.put(field.getName(), dumpObject(value, callCount));  // Recursive call for each field
+                    try{
+                        field.setAccessible(true);
+                        Object value = field.get(object);
+                        fieldsObject.put(field.getName(), dumpObject(value, callCount));  // Recursive call for each field
+                    } catch (Exception e) {
+
+                    }
                 }
             }
             jsonClassFieldsMap.put("type", "Array");
@@ -683,13 +686,13 @@ public class StdLib {
             }
             jsonClassMethodsMap.put("type", "Array");
             jsonClassMethodsMap.put("value", methodsArray); // Add the methods array to your jsonObject
-            
+
             // Set class, and methods and fields
             jsonObject.put("component", objectClass.getName());
             jsonObject.put("methods", jsonClassMethodsMap);
             jsonObject.put("fields", jsonClassFieldsMap);
-           
-            
+
+
         }
 
         return jsonObject;
