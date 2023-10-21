@@ -14,7 +14,7 @@ public class JsonToHtml {
 
             // Key cell
             if (!key.equals("type") && !key.equals("value")) {
-                rows.append("<td>").append(key).append("</td>");
+                //rows.append("<td>").append(key).append("</td>");
             }
 
             // Value cell
@@ -29,7 +29,6 @@ public class JsonToHtml {
                 }else{
                     rows.append("<td>").append(value.toString()).append("</td>");
                 }
-                
             }
 
             rows.append("</tr>");
@@ -55,7 +54,7 @@ public class JsonToHtml {
             } else if (value instanceof JSONArray) {
                 rows.append("<td>").append(jsonArrayToTable((JSONArray) value)).append("</td>");
             } else {
-               
+
                 rows.append("<td>").append(value.toString()).append("</td>");
             }
 
@@ -176,7 +175,7 @@ public class JsonToHtml {
         table.append(jsonArrayToTableRows(array));
 
         table.append("</table>");
-        
+
         return table.toString();
     }
 
